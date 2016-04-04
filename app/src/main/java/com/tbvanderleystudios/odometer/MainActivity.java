@@ -1,17 +1,24 @@
 package com.tbvanderleystudios.odometer;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private OdometerService mOdometerService;
     private boolean mBound = false;
 
@@ -34,14 +41,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        watchMileage();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, OdometerService.class);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
@@ -60,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 double distance = 0.0;
-                if(mOdometerService != null) {
+                if (mOdometerService != null) {
                     distance = mOdometerService.getMiles();
                 }
                 String distanceString = String.format("%1$,.2f MILES", distance);
@@ -70,5 +83,21 @@ public class MainActivity extends AppCompatActivity {
                 handler.postDelayed(this, 1000);
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                // If request is cancelled, the result arrays are empty.
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    watchMileage();
+                } else {
+                    Toast toast = Toast.makeText(this, "We needed location access to check distance traveled.", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        }
     }
 }

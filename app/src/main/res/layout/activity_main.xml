@@ -17,7 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_centerHorizontal="true"
         android:singleLine="false"
-        android:textSize="50dp"
+        android:textSize="50sp"
         tools:text="10.45 MILES"/>
 
 </RelativeLayout>
