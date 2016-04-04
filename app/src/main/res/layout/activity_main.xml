@@ -11,8 +11,13 @@
     tools:context="com.tbvanderleystudios.odometer.MainActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:id="@+id/distanceTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_centerHorizontal="true"
+        android:singleLine="false"
+        android:textSize="50dp"
+        tools:text="10.45 MILES"/>
 
 </RelativeLayout>
